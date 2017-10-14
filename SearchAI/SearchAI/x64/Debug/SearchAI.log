@@ -1,0 +1,4 @@
+﻿  Game.cpp
+c:\users\rasmus\documents\visual studio 2015\projects\searchai\searchai\game.cpp(399): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+  SearchAI.vcxproj -> C:\Users\Rasmus\Documents\Visual Studio 2015\Projects\SearchAI\x64\Debug\SearchAI.exe
+  SearchAI.vcxproj -> C:\Users\Rasmus\Documents\Visual Studio 2015\Projects\SearchAI\x64\Debug\SearchAI.pdb (Partial PDB)
