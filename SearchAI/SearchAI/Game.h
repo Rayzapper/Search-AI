@@ -26,10 +26,11 @@ public:
 	void Render();
 private:
 	void SetupButtons();
+	void SetupMap();
 	void ClearPoints();
 	void SwitchMap(short ID);
-	void SetNeighbors();
 	void SetPathLine(Node *node);
+
 	sf::RenderWindow *m_Window;
 	vector<Dropdown*> m_Dropdowns;
 	vector<Button*> m_Buttons;

@@ -40,7 +40,7 @@ void Game::Run()
 	m_Pathfinder = new Pathfinder(&m_TileMap);
 
 	SetupButtons();
-	SwitchMap(0);
+	SetupMap();
 
 	m_StartShape.setRadius(10);
 	m_StartShape.setFillColor(sf::Color::Green);
@@ -125,24 +125,27 @@ void Game::Update(float dt, sf::Vector2i mousePosition)
 	{
 		for each (Tile *t in tileRow)
 		{
-			t->Update(dt, mousePosition);
-
-			if (t->GetID() != 1)
+			if (t->GetActive())
 			{
-				if (mouseClick)
+				t->Update(dt, mousePosition);
+
+				if (t->GetID() != 1)
 				{
-					if (t->GetMouseover())
+					if (mouseClick)
 					{
-						m_StartTile = t;
-						m_StartShape.setPosition(t->GetPosition() + sf::Vector2f(10, 10));
+						if (t->GetMouseover())
+						{
+							m_StartTile = t;
+							m_StartShape.setPosition(t->GetPosition() + sf::Vector2f(10, 10));
+						}
 					}
-				}
-				else if (rightClick)
-				{
-					if (t->GetMouseover())
+					else if (rightClick)
 					{
-						m_EndTile = t;
-						m_EndShape.setPosition(t->GetPosition() + sf::Vector2f(10, 10));
+						if (t->GetMouseover())
+						{
+							m_EndTile = t;
+							m_EndShape.setPosition(t->GetPosition() + sf::Vector2f(10, 10));
+						}
 					}
 				}
 			}
@@ -280,7 +283,8 @@ void Game::Render()
 	{
 		for each (Tile *t in tileRow)
 		{
-			t->Render(m_Window);
+			if (t->GetActive())
+				t->Render(m_Window);
 		}
 	}
 
@@ -340,6 +344,60 @@ void Game::SetupButtons()
 	dropdown->AddButton(button);
 }
 
+void Game::SetupMap()
+{
+	for (size_t y = 0; y < 20; y++)
+	{
+		vector<Tile*> tileRow;
+		for (size_t x = 0; x < 20; x++)
+		{
+			Tile *tile;
+			tile = new Tile(m_Map1[y][x]);
+
+			tile->SetPosition(sf::Vector2f(x * 40 + 10, y * 40 + 10));
+
+			tileRow.push_back(tile);
+		}
+		m_TileMap.push_back(tileRow);
+	}
+
+	for (size_t y = 0; y < 20; y++)
+	{
+		for (size_t x = 0; x < 20; x++)
+		{
+			Tile *neighbors[8];
+			for (size_t i = 0; i < 8; i++)
+			{
+				neighbors[i] = nullptr;
+			}
+
+			if (y > 0)
+			{
+				if (x < 19) neighbors[1] = m_TileMap[y - 1][x + 1];
+
+				neighbors[0] = m_TileMap[y - 1][x];
+
+				if (x > 0) neighbors[7] = m_TileMap[y - 1][x - 1];
+			}
+
+			if (y < 19)
+			{
+				if (x < 19) neighbors[3] = m_TileMap[y + 1][x + 1];
+
+				neighbors[4] = m_TileMap[y + 1][x];
+
+				if (x > 0) neighbors[5] = m_TileMap[y + 1][x - 1];
+			}
+
+			if (x < 19) neighbors[2] = m_TileMap[y][x + 1];
+
+			if (x > 0) neighbors[6] = m_TileMap[y][x - 1];
+
+			m_TileMap[y][x]->SetNeighbors(neighbors);
+		}
+	}
+}
+
 void Game::ClearPoints()
 {
 	m_StartTile = nullptr;
@@ -350,97 +408,34 @@ void Game::ClearPoints()
 		delete l;
 	}
 	m_PathLine.clear();
-
-	for each (vector<Tile*> r in m_TileMap)
-	{
-		for each (Tile *t in r)
-		{
-			delete t;
-		}
-		r.clear();
-	}
-	m_TileMap.clear();
 }
 
 void Game::SwitchMap(short ID)
 {
 	ClearPoints();
 
-	int ySize = 20, xSize = 20;
-	if (ID == 3)
+	for (size_t y = 0; y < 20; y++)
 	{
-		ySize = 4;
-		xSize = 4;
-	}
-	for (size_t y = 0; y < ySize; y++)
-	{
-		vector<Tile*> tileRow;
-		for (size_t x = 0; x < xSize; x++)
+		for (size_t x = 0; x < 20; x++)
 		{
-			Tile *tile;
+			Tile *tile = m_TileMap[y][x];
+			tile->SetActive(true);
+
+			tile->SetSearchState(CLEAR);
 
 			if (ID == 0)
-			{
-				tile = new Tile(m_Map1[y][x]);
-			}
+				tile->SetID(m_Map1[y][x]);
 			else if (ID == 1)
-			{
-				tile = new Tile(m_Map2[y][x]);
-			}
+				tile->SetID(m_Map2[y][x]);
 			else if (ID == 2)
-			{
-				tile = new Tile(m_Map3[y][x]);
-			}
+				tile->SetID(m_Map3[y][x]);
 			else
 			{
-				tile = new Tile(m_Map4[y][x]);
+				if (y < 4 && x < 4)
+					tile->SetID(m_Map4[y][x]);
+				else
+					tile->SetActive(false);
 			}
-
-			tile->SetPosition(sf::Vector2f(x * 40 + 10, y * 40 + 10));
-
-			tileRow.push_back(tile);
-		}
-		m_TileMap.push_back(tileRow);
-	}
-
-	SetNeighbors();
-}
-
-void Game::SetNeighbors()
-{
-	for (size_t y = 0; y < m_TileMap.size(); y++)
-	{
-		for (size_t x = 0; x < m_TileMap[y].size(); x++)
-		{
-			Tile *neighbors[8];
-			for (size_t i = 0; i < 8; i++)
-			{
-				neighbors[i] = nullptr;
-			}
-
-			if (y > 0)
-			{
-				if (x < m_TileMap[y].size() - 1) neighbors[1] = m_TileMap[y - 1][x + 1];
-
-				neighbors[0] = m_TileMap[y - 1][x];
-
-				if (x > 0) neighbors[7] = m_TileMap[y - 1][x - 1];
-			}
-
-			if (y < m_TileMap.size() - 1)
-			{
-				if (x < m_TileMap[y].size() - 1) neighbors[3] = m_TileMap[y + 1][x + 1];
-
-				neighbors[4] = m_TileMap[y + 1][x];
-
-				if (x > 0) neighbors[5] = m_TileMap[y + 1][x - 1];
-			}
-
-			if (x < m_TileMap[y].size() - 1) neighbors[2] = m_TileMap[y][x + 1];
-
-			if (x > 0) neighbors[6] = m_TileMap[y][x - 1];
-
-			m_TileMap[y][x]->SetNeighbors(neighbors);
 		}
 	}
 }

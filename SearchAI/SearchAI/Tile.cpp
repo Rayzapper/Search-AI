@@ -46,6 +46,20 @@ void Tile::Render(sf::RenderWindow *window)
 	}
 }
 
+void Tile::SetID(short ID)
+{
+	m_ID = ID;
+
+	if (ID == 0)
+		m_Shape.setFillColor(sf::Color(255, 255, 255, 255));
+	else if (ID == 1)
+		m_Shape.setFillColor(sf::Color(31, 31, 31, 255));
+	else if (ID == 2)
+		m_Shape.setFillColor(sf::Color(127, 127, 127, 255));
+	else if (ID == 3)
+		m_Shape.setFillColor(sf::Color(0, 0, 255, 255));
+}
+
 void Tile::SetNeighbors(Tile *neighbors[8])
 {
 	for (size_t i = 0; i < 8; i++)
@@ -66,6 +80,11 @@ void Tile::SetPosition(sf::Vector2f position)
 void Tile::SetSearchState(SearchState state)
 {
 	m_SearchState = state;
+}
+
+void Tile::SetActive(bool active)
+{
+	m_Active = active;
 }
 
 short Tile::GetID() const
@@ -89,4 +108,9 @@ float Tile::GetMoveCost()
 	else if (m_ID == 2) return 4.f;
 	else if (m_ID == 3) return 8.f;
 	else return 100.f;
+}
+
+bool Tile::GetActive() const
+{
+	return m_Active;
 }

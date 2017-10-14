@@ -86,7 +86,7 @@ Node* Pathfinder::DeepSearch(Tile *start, Tile *end)
 			bool add = true;
 
 			if (newNode->tile == nullptr) add = false;
-			else if (newNode->tile->GetID() == 1) add = false;
+			else if (newNode->tile->GetID() == 1 || !newNode->tile->GetActive()) add = false;
 			else
 			{
 				for each (Node *n in m_NodeList)
@@ -172,7 +172,7 @@ Node* Pathfinder::BroadSearch(Tile *start, Tile *end)
 			bool add = true;
 
 			if (newNode->tile == nullptr) add = false;
-			else if (newNode->tile->GetID() == 1) add = false;
+			else if (newNode->tile->GetID() == 1 || !newNode->tile->GetActive()) add = false;
 			else
 			{
 				for each (Node *n in m_NodeList)
@@ -271,7 +271,7 @@ Node* Pathfinder::CostSearch(Tile *start, Tile *end)
 			bool add = true;
 
 			if (newNode.node->tile == nullptr) add = false;
-			else if (newNode.node->tile->GetID() == 1) add = false;
+			else if (newNode.node->tile->GetID() == 1 || !newNode.node->tile->GetActive()) add = false;
 			else
 			{
 				for each (Node *n in m_NodeList)
