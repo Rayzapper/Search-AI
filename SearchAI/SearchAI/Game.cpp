@@ -426,7 +426,12 @@ void Game::SwitchMap(short ID)
 			if (ID == 0)
 				tile->SetID(m_Map1[y][x]);
 			else if (ID == 1)
-				tile->SetID(m_Map2[y][x]);
+			{
+				if (x < 11)
+					tile->SetID(m_Map2[y][x]);
+				else
+					tile->SetActive(false);
+			}
 			else if (ID == 2)
 				tile->SetID(m_Map3[y][x]);
 			else
